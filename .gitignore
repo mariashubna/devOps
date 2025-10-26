@@ -1,0 +1,24 @@
+# Python кэш
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Конфигурации IDE
+.vscode/
+.idea/
+
+# Логи и временные файлы
+*.log
+*.sqlite3
+*.db
+
+# Пайплайн/другие временные файлы
+*.egg-info/
+dist/
+build/
+
