@@ -75,5 +75,5 @@ resource "aws_eks_node_group" "ng" {
     min_size     = 2
   }
 
-  depends_on = [aws_eks_cluster.main]
+  instance_types = ["t3.micro"]
 }
