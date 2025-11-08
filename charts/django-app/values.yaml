@@ -1,12 +1,12 @@
-image:
-  repository: <your_account_id>.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr
-  tag: latest
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
 
 service:
   type: LoadBalancer
   port: 80
 
-autoscaling:
-  minReplicas: 2
-  maxReplicas: 6
-  targetCPUUtilizationPercentage: 70
+image:
+  repository: 606705194042.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr
+  tag: latest
