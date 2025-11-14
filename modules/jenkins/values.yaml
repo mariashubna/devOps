@@ -1,0 +1,27 @@
+controller:
+  adminUser: admin
+  adminPassword: "${ADMIN_PASSWORD}" # замінити через Helm set або Secret
+  serviceType: ClusterIP
+
+  JCasC:
+    enabled: true
+
+  kubernetes:
+    enabled: true
+    namespace: "jenkins"
+    jenkinsUrl: "http://jenkins:8080"
+
+  podTemplates:
+    - name: kaniko
+      label: kaniko
+      # образ з контейнерами, як у Jenkinsfile
+      containers:
+        - name: kaniko
+          image: gcr.io/kaniko-project/executor:latest
+          command: ["/kaniko/executor"]
+        - name: awscli
+          image: amazon/aws-cli:2.9.0
+        - name: git
+          image: alpine/git:latest
+  serviceAccount:
+    create: true

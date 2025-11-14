@@ -1,31 +1,53 @@
-# Terraform Project: lesson-5
+# Terraform & Kubernetes Project: lesson-5 / lesson-7
 
 ## Description
 
-This project demonstrates how to use Terraform to deploy AWS infrastructure with centralized state management in S3 and state locking using DynamoDB.
+This project demonstrates how to deploy AWS infrastructure using Terraform, manage state centrally in S3 with DynamoDB for locking, and deploy a Django application on Kubernetes (EKS) using Helm.
 
-The project includes modules for:
+---
 
-- **S3 and DynamoDB** — Terraform state storage and lock table.
-- **VPC** — Creation of a VPC with public and private subnets, Internet Gateway, and NAT Gateway.
-- **ECR** — Repository for storing Docker images.
+## Project Goals
+
+1. Deploy AWS infrastructure with Terraform:
+   - S3 bucket for Terraform state.
+   - DynamoDB table for state locking.
+   - VPC with public and private subnets, Internet Gateway, and NAT Gateway.
+   - ECR repository for Docker images.
+2. Deploy a Kubernetes cluster (EKS) in the same VPC.
+3. Build and push Django Docker image to ECR.
+4. Deploy Django app using Helm with:
+   - Deployment
+   - Service (LoadBalancer)
+   - Horizontal Pod Autoscaler (HPA)
+   - ConfigMap for environment variables
+   - Optional Ingress with TLS support and cert-manager.
 
 ---
 
 ## Project Structure
 
-lesson-5/
+lesson-7/
 │
-├── main.tf # Module declarations
-├── backend.tf # Backend configuration (S3 + DynamoDB)
-├── outputs.tf # Outputs of resources
-├── variables.tf # Global variables
-├── README.md # Project documentation
-│
-└── modules/
-├── s3-backend/
-├── vpc/
-└── ecr/
+├── main.tf — Terraform main file for module integration
+├── backend.tf — Backend configuration for state (S3 + DynamoDB)
+├── outputs.tf — Terraform outputs (VPC ID, ECR URL, etc.)
+├── variables.tf — Global variables
+├── README.md — Project documentation
+├── modules/
+│ ├── s3-backend/
+│ ├── vpc/
+│ ├── ecr/
+│ └── eks/ — Module for Kubernetes cluster (EKS)
+└── charts/
+└── django-app/ — Helm chart for Django deployment
+├── templates/
+│ ├── deployment.yaml
+│ ├── service.yaml
+│ ├── configmap.yaml
+│ ├── hpa.yaml
+│ └── ingress.yaml (optional)
+├── Chart.yaml
+└── values.yaml
 
 ---
 
@@ -51,6 +73,12 @@ lesson-5/
 - Creates an ECR repository for Docker images.
 - Enables automated image scanning.
 - **Outputs**: `ecr_repository_url`.
+
+### eks
+
+- Creates EKS cluster.
+- Attaches node groups to private subnets.
+- **Outputs**: `cluster_name`, `cluster_endpoint`.
 
 ---
 
@@ -100,6 +128,46 @@ terraform apply
 
 ```bash
 terraform destroy
+```
+
+## Docker & ECR
+
+**Build Docker image for Django:**
+
+```bash
+docker build -t lesson-5-ecr .
+```
+
+**Authenticate Docker with ECR:**
+
+```bash
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <account_id>.dkr.ecr.us-west-2.amazonaws.com
+```
+
+**Tag and push image:**
+
+```bash
+docker tag lesson-5-ecr:latest <account_id>.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr:latest
+docker push <account_id>.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr:latest
+```
+
+## Helm Deployment (Django)
+
+**Deploy with Helm**
+
+```bash
+helm upgrade --install django-app ./charts/django-app
+```
+
+**Verify Deployment**
+
+```bash
+kubectl get nodes
+kubectl get deployments
+kubectl get pods
+kubectl get services
+kubectl get hpa
+kubectl get configmap
 ```
 
 ## Variables
