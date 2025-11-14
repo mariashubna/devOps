@@ -77,3 +77,5 @@ resource "aws_eks_node_group" "ng" {
 
   instance_types = ["t3.micro"]
 }
+
+

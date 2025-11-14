@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .name | default "django-app" }}
+spec:
+  project: default
+  source:
+    repoURL: "{{ .repoURL }}"
+    path: "{{ .path }}"
+    targetRevision: "{{ .targetRevision }}"
+    helm:
+      valueFiles: []
+  destination:
+    server: "{{ .destination.server }}"
+    namespace: "{{ .destination.namespace }}"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

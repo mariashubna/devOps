@@ -1,0 +1,12 @@
+applications:
+  - name: django-app
+    repoURL: "https://github.com/your-org/your-repo" # same repo
+    path: "charts/django-app"
+    targetRevision: main
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true

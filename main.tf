@@ -4,7 +4,7 @@ provider "aws" {
 
 module "s3_backend" {
   source      = "./modules/s3-backend"
-  bucket_name = "terraform-state-bucket-001001-mariia-sv"
+  bucket_name = "terraform-state-bucket-001001-maria-sv"
   table_name  = "terraform-locks"
 }
 
@@ -27,4 +27,16 @@ module "eks" {
   source       = "./modules/eks"
   cluster_name = "lesson-7-cluster"
   subnet_ids   = module.vpc.private_subnet_ids
+}
+
+
+module "argo_cd" {
+  source = "./modules/argo_cd"
+
+  cluster_name           = module.eks.cluster_name
+  cluster_endpoint       = module.eks.cluster_endpoint
+  cluster_ca_certificate = module.eks.cluster_ca_certificate
+  cluster_token          = module.eks.cluster_token
+  region                 = "us-west-2"
+  namespace              = "argocd"
 }

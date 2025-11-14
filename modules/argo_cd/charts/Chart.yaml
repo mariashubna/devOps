@@ -1,0 +1,4 @@
+apiVersion: v2
+name: argocd-apps
+version: 0.1.0
+description: app of apps for Argo CD to create applications
