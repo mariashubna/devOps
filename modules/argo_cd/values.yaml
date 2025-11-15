@@ -1,24 +1,4 @@
 server:
   service:
-    type: ClusterIP
-  extraArgs:
-    - --insecure
-controller:
-  serviceAccount:
-    create: true
-  extraEnv:
-    - name: ARGOCD_EVALUATE_OUT_OF_SYNC_ONLY
-      value: "false"
-
-repoServer:
-  enabled: true
-
-
-repositories:
-  - name: "my-app-repo"
-    url: "git@github.com:your-org/your-repo.git"
-    sshPrivateKey: |
-      -----BEGIN OPENSSH PRIVATE KEY-----
-      ...
-      -----END OPENSSH PRIVATE KEY-----
-    
+    type: LoadBalancer
+    port: 443

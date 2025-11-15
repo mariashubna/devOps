@@ -1,35 +1,25 @@
-resource "kubernetes_namespace" "argocd" {
-  metadata {
-    name = var.namespace
-  }
-}
-
-resource "helm_release" "argo" {
-  name             = "argo-cd"
-  repository       = "https://argoproj.github.io/argo-helm"
-  chart            = "argo-cd"
-  namespace        = kubernetes_namespace.argocd.metadata[0].name
-  create_namespace = false
-  version          = "5.41.0"
-  skip_crds        = true
-  timeout          = 1200
-  wait             = true
-  replace          = true  
+resource "helm_release" "argo_cd" {
+  name       = var.name
+  namespace  = var.namespace
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argo-cd"
+  version    = var.chart_version
 
   values = [
     file("${path.module}/values.yaml")
   ]
+
+  create_namespace = true
 }
 
-resource "kubernetes_secret" "argocd_repo" {
-  metadata {
-    name      = "argocd-repo-creds"
-    namespace = kubernetes_namespace.argocd.metadata[0].name
-  }
+resource "helm_release" "argo_apps" {
+  name             = "${var.name}-apps"
+  chart            = "${path.module}/charts"
+  namespace        = var.namespace
+  create_namespace = false
 
-  data = {
-   
-  }
-
-  type = "Opaque"
+  values = [
+    file("${path.module}/values.yaml")
+  ]
+  depends_on = [helm_release.argo_cd]
 }

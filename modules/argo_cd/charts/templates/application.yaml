@@ -1,19 +1,26 @@
+{{- range .Values.applications }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .name | default "django-app" }}
+  name: {{ .name }}
+  namespace: argocd
 spec:
-  project: default
+  project: {{ .project }}
   source:
-    repoURL: "{{ .repoURL }}"
-    path: "{{ .path }}"
-    targetRevision: "{{ .targetRevision }}"
+    repoURL: {{ .source.repoURL }}
+    path: {{ .source.path }}
+    targetRevision: {{ .source.targetRevision }}
     helm:
-      valueFiles: []
+      valueFiles:
+      {{- range .source.helm.valueFiles }}
+        - {{ . | quote }}
+      {{- end }}
   destination:
-    server: "{{ .destination.server }}"
-    namespace: "{{ .destination.namespace }}"
+    server: {{ .destination.server }}
+    namespace: {{ .destination.namespace }}
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: {{ .syncPolicy.automated.prune }}
+      selfHeal: {{ .syncPolicy.automated.selfHeal }}
+---
+{{- end }}

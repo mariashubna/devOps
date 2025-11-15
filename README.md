@@ -1,4 +1,4 @@
-# Terraform & Kubernetes Project: lesson-5 / lesson-7
+# Terraform & Kubernetes Project: lesson-5-7-8-9
 
 ## Description
 
@@ -14,8 +14,15 @@ This project demonstrates how to deploy AWS infrastructure using Terraform, mana
    - VPC with public and private subnets, Internet Gateway, and NAT Gateway.
    - ECR repository for Docker images.
 2. Deploy a Kubernetes cluster (EKS) in the same VPC.
-3. Build and push Django Docker image to ECR.
-4. Deploy Django app using Helm with:
+3. Deploy **Jenkins** using Helm to manage CI pipelines:
+   - Build Docker images for Django app.
+   - Push images to ECR.
+   - Update Helm chart with new image tag.
+   - Push changes to Git repository.
+4. Deploy **Argo CD** using Helm for GitOps-driven CD:
+   - Monitor Helm charts in Git.
+   - Automatically synchronize changes to the EKS cluster.
+5. Deploy Django application using Helm with:
    - Deployment
    - Service (LoadBalancer)
    - Horizontal Pod Autoscaler (HPA)
@@ -26,28 +33,64 @@ This project demonstrates how to deploy AWS infrastructure using Terraform, mana
 
 ## Project Structure
 
-lesson-7/
+lesson-8-9/
+Progect/
 │
-├── main.tf — Terraform main file for module integration
-├── backend.tf — Backend configuration for state (S3 + DynamoDB)
-├── outputs.tf — Terraform outputs (VPC ID, ECR URL, etc.)
-├── variables.tf — Global variables
-├── README.md — Project documentation
-├── modules/
-│ ├── s3-backend/
-│ ├── vpc/
-│ ├── ecr/
-│ └── eks/ — Module for Kubernetes cluster (EKS)
-└── charts/
-└── django-app/ — Helm chart for Django deployment
-├── templates/
-│ ├── deployment.yaml
-│ ├── service.yaml
-│ ├── configmap.yaml
-│ ├── hpa.yaml
-│ └── ingress.yaml (optional)
-├── Chart.yaml
-└── values.yaml
+├── main.tf # Головний файл для підключення модулів
+├── backend.tf # Налаштування бекенду для стейтів (S3 + DynamoDB
+├── outputs.tf # Загальні виводи ресурсів
+│
+├── modules/ # Каталог з усіма модулями
+│ ├── s3-backend/ # Модуль для S3 та DynamoDB
+│ │ ├── s3.tf # Створення S3-бакета
+│ │ ├── dynamodb.tf # Створення DynamoDB
+│ │ ├── variables.tf # Змінні для S3
+│ │ └── outputs.tf # Виведення інформації про S3 та DynamoDB
+│ │
+│ ├── vpc/ # Модуль для VPC
+│ │ ├── vpc.tf # Створення VPC, підмереж, Internet Gateway
+│ │ ├── routes.tf # Налаштування маршрутизації
+│ │ ├── variables.tf # Змінні для VPC
+│ │ └── outputs.tf  
+│ ├── ecr/ # Модуль для ECR
+│ │ ├── ecr.tf # Створення ECR репозиторію
+│ │ ├── variables.tf # Змінні для ECR
+│ │ └── outputs.tf # Виведення URL репозиторію
+│ │
+│ ├── eks/ # Модуль для Kubernetes кластера
+│ │ ├── eks.tf # Створення кластера
+│ │ ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
+│ │ ├── variables.tf # Змінні для EKS
+│ │ └── outputs.tf # Виведення інформації про кластер
+│ │
+│ ├── jenkins/ # Модуль для Helm-установки Jenkins
+│ │ ├── jenkins.tf # Helm release для Jenkins
+│ │ ├── variables.tf # Змінні (ресурси, креденшели, values)
+│ │ ├── providers.tf # Оголошення провайдерів
+│ │ ├── values.yaml # Конфігурація jenkins
+│ │ └── outputs.tf # Виводи (URL, пароль адміністратора)
+│ │
+│ └── argo_cd/ # ✅ Новий модуль для Helm-установки Argo CD
+│ ├── jenkins.tf # Helm release для Jenkins
+│ ├── variables.tf # Змінні (версія чарта, namespace, repo URL тощо)
+│ ├── providers.tf # Kubernetes+Helm. переносимо з модуля jenkins
+│ ├── values.yaml # Кастомна конфігурація Argo CD
+│ ├── outputs.tf # Виводи (hostname, initial admin password)
+│ └──charts/ # Helm-чарт для створення app'ів
+│ ├── Chart.yaml
+│ ├── values.yaml # Список applications, repositories
+│ └── templates/
+│ ├── application.yaml
+│ └── repository.yaml
+├── charts/
+│ └── django-app/
+│ ├── templates/
+│ │ ├── deployment.yaml
+│ │ ├── service.yaml
+│ │ ├── configmap.yaml
+│ │ └── hpa.yaml
+│ ├── Chart.yaml
+│ └── values.yaml # ConfigMap зі змінними середовища
 
 ---
 
@@ -79,6 +122,20 @@ lesson-7/
 - Creates EKS cluster.
 - Attaches node groups to private subnets.
 - **Outputs**: `cluster_name`, `cluster_endpoint`.
+
+### jenkins
+
+- Deploys Jenkins via Helm.
+- Configures Jenkins service account for Kaniko + Git + AWS integration.
+- Prepares pipeline for Docker image build and Helm chart updates.
+- **Outputs**: `jenkins_release_name`, `jenkins_namespace`.
+
+### argo_cd
+
+- Deploys Argo CD via Helm.
+- Configures Applications and Repositories for GitOps.
+- Automatically synchronizes Helm charts from Git to EKS.
+- **Outputs**: `namespace`, `argo_cd_server_service`, `admin_password`.
 
 ---
 
@@ -151,6 +208,20 @@ docker tag lesson-5-ecr:latest <account_id>.dkr.ecr.us-west-2.amazonaws.com/less
 docker push <account_id>.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr:latest
 ```
 
+## Jenkins Pipeline
+
+1. Builds Docker image for Django using Kaniko
+2. Pushes image to ECR.
+3. Updates values.yaml in Helm chart with new image tag.
+4. Pushes changes back to Git repository.
+
+Pipeline stages:
+
+1. Prepare: checkout repo, set IMAGE_TAG
+2. Build & Push image (Kaniko)
+3. Update Helm chart values.yaml
+4. Helm lint & template (optional)
+
 ## Helm Deployment (Django)
 
 **Deploy with Helm**
@@ -168,6 +239,23 @@ kubectl get pods
 kubectl get services
 kubectl get hpa
 kubectl get configmap
+```
+
+## Argo CD Deployment
+
+- Monitor Helm chart repository in Git.
+- Automatically sync new image tags from Git.
+
+**Access Argo CD UI:**
+
+```bash
+kubectl port-forward svc/argo-cd-server -n argocd 8080:443
+```
+
+**Admin password:**
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode
 ```
 
 ## Variables
