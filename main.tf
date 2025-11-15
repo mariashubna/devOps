@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-central-1"
+  region = "us-west-2"
 }
 
 # -------------------------
@@ -22,8 +22,8 @@ module "vpc" {
   public_subnets     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 
-  # Доступные зоны в регионе eu-central-1
-  availability_zones = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
+  # Доступные зоны в регионе  "us-west-2"
+  availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
 
   vpc_name           = "lesson-8-9-vpc"
 }
@@ -69,24 +69,32 @@ data "aws_eks_cluster_auth" "cluster" {
   depends_on = [module.eks]
 }
 
-# -------------------------
-# Kubernetes Provider
-# -------------------------
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
 }
 
-# -------------------------
-# Helm provider (если нужен)
-# -------------------------
 provider "helm" {
   kubernetes = {
     host                   = data.aws_eks_cluster.cluster.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.cluster.token
-    load_config_file       = false
+  }
+}
+
+
+module "jenkins" {
+  source            = "./modules/jenkins"  # <-- обовʼязково
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  github_pat        = var.github_pat
+  github_user       = var.github_user
+  github_repo_url   = var.github_repo_url
+  depends_on        = [module.eks]
+  providers         = {
+    helm       = helm
+    kubernetes = kubernetes
   }
 }
