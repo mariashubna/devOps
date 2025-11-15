@@ -1,39 +1,16 @@
-{{- /*
-Create a k8s Secret with label argocd.argoproj.io/secret-type=repository
-Supported auth:
-  - SSH private key (sshPrivateKey)
-  - Username/password (username/password)
-Values expected:
-  .Values.repositories[0].url
-  .Values.repositories[0].sshPrivateKey  (optional)
-  .Values.repositories[0].username       (optional)
-  .Values.repositories[0].password       (optional)
-  .Values.repositories[0].insecure       (optional, boolean)
-*/ -}}
-
-{{- $repo := index .Values.repositories 0 -}}
-{{- if $repo }}
+{{- range .Values.repositories }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ default "argocd-repo-credentials" $repo.name | trunc 63 | trimSuffix "-" }}
-  namespace: {{ default $.Release.Namespace "argocd" }}
+  name: {{ .name }}
+  namespace: argocd
   labels:
     argocd.argoproj.io/secret-type: repository
-type: Opaque
-data:
-  # url must be plain string (not base64 in values), but Kubernetes secret requires base64.
-  url: {{ $repo.url | b64enc }}
-  {{- if $repo.username }}
-  username: {{ $repo.username | b64enc }}
-  {{- end }}
-  {{- if $repo.password }}
-  password: {{ $repo.password | b64enc }}
-  {{- end }}
-  {{- if $repo.sshPrivateKey }}
-  sshPrivateKey: {{ $repo.sshPrivateKey | b64enc }}
-  {{- end }}
-  {{- if $repo.insecure }}
-  insecureIgnoreHostKey: "true"
-  {{- end }}
-{{- end }}
+stringData:
+  url: {{ .url }}
+  username: {{ .username }}
+  password: {{ .password }}
+  insecure: "{{ $.Values.repoConfig.insecure }}"
+  enableLfs: "{{ $.Values.repoConfig.enableLfs }}"
+---
+{{ - end }}
