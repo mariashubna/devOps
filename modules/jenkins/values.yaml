@@ -1,20 +1,28 @@
 controller:
+  # --- Admin credentials ---
   adminUser: admin
-  adminPassword: "${ADMIN_PASSWORD}" # замінити через Helm set або Secret
-  serviceType: ClusterIP
+  adminPassword: "${ADMIN_PASSWORD}"  # замінити через Helm set або Secret
+  admin:
+    username: admin
+    password: admin123
 
-  JCasC:
-    enabled: true
+  # --- Service configuration ---
+  serviceType: LoadBalancer
+  servicePort: 80
+  service:
+    port: 80
+    targetPort: 8080
 
+  # --- Kubernetes integration ---
   kubernetes:
     enabled: true
     namespace: "jenkins"
     jenkinsUrl: "http://jenkins:8080"
 
+  # --- Pod templates (Kaniko + helpers) ---
   podTemplates:
     - name: kaniko
       label: kaniko
-      # образ з контейнерами, як у Jenkinsfile
       containers:
         - name: kaniko
           image: gcr.io/kaniko-project/executor:latest
@@ -23,19 +31,8 @@ controller:
           image: amazon/aws-cli:2.9.0
         - name: git
           image: alpine/git:latest
-  serviceAccount:
-    create: true
-controller:
-  admin:
-    username: admin
-    password: admin123
 
-  serviceType: LoadBalancer
-  servicePort: 80
-  service:
-    port: 80
-    targetPort: 8080
-
+  # --- Resources ---
   resources:
     limits:
       cpu: "500m"
@@ -44,11 +41,13 @@ controller:
       cpu: "250m"
       memory: "512Mi"
 
+  # --- Persistent volume ---
   persistentVolume:
     enabled: true
     storageClass: "ebs-sc"
     size: 10Gi
 
+  # --- Plugins to install ---
   installPlugins:
     - kubernetes:latest
     - workflow-aggregator:latest
@@ -60,12 +59,16 @@ controller:
     - docker-workflow:latest
     - job-dsl:latest
 
+  # --- Use our pre-created ServiceAccount with IRSA ---
   serviceAccount:
-    name: jenkins-sa
+    name: jenkins-kaniko-sa
     create: false
 
+  # --- Jenkins Configuration-as-Code ---
   JCasC:
+    enabled: true
     configScripts:
+
       credentials: |
         credentials:
           system:
@@ -77,6 +80,7 @@ controller:
                       username: ${github_user}
                       password: ${github_pat}
                       description: GitHub PAT
+
       seed-job: |
         jobs:
           - script: >
@@ -94,6 +98,7 @@ controller:
                 steps {
                   dsl {
                     text('''
+
                       pipelineJob("goit-django-docker") {
                         definition {
                           cpsScm {
@@ -109,6 +114,7 @@ controller:
                           }
                         }
                       }
+
                     ''')
                   }
                 }

@@ -85,7 +85,7 @@ provider "helm" {
 
 
 module "jenkins" {
-  source            = "./modules/jenkins"  # <-- обовʼязково
+  source            = "./modules/jenkins"  
   cluster_name      = module.eks.cluster_name
   oidc_provider_arn = module.eks.oidc_provider_arn
   oidc_provider_url = module.eks.oidc_provider_url
