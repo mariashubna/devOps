@@ -14,12 +14,16 @@ resource "kubernetes_storage_class_v1" "ebs_sc" {
   parameters = {
     type = "gp3"
   }
+
+
 }
 
 resource "kubernetes_namespace" "jenkins" {
   metadata {
     name = "jenkins"
   }
+
+
 }
 
 resource "kubernetes_service_account" "jenkins_sa" {
@@ -90,4 +94,6 @@ resource "helm_release" "jenkins" {
   values = [
     file("${path.module}/values.yaml")
   ]
+
+
 }
