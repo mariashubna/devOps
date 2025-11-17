@@ -98,3 +98,36 @@ module "jenkins" {
     kubernetes = kubernetes
   }
 }
+
+
+
+module "rds" {
+  source = "./modules/rds"
+
+  name       = "myapp-db"
+  use_aurora = true
+
+  engine                 = "aurora-postgresql"
+  engine_version         = "14.11"
+  instance_class         = "db.r6g.large"
+  parameter_group_family = "aurora-postgresql14"
+
+  aurora_instance_count = 2
+
+  db_name  = "myapp"
+  username = "postgres"
+  password = "admin123AWS23"
+  port     = 5432
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  allowed_cidr_blocks = [
+    "10.0.0.0/16"
+  ]
+
+  tags = {
+    Environment = "prod"
+    Project     = "myproject"
+  }
+}
