@@ -188,6 +188,60 @@ module "rds" {
 
 **RDS module variables**
 
+| Variable                  | Type         | Default    | Description                                                                 |
+| ------------------------- | ------------ | ---------- | --------------------------------------------------------------------------- |
+| `name`                    | string       | —          | Base name for all DB resources (used in cluster, SG, subnet group, etc.)    |
+| `use_aurora`              | bool         | false      | If true, creates an Aurora Cluster; if false, creates a single RDS instance |
+| `engine`                  | string       | "postgres" | Database engine type: postgres, mysql, aurora-postgresql, aurora-mysql      |
+| `engine_version`          | string       | —          | Database engine version, e.g., 14.11                                        |
+| `instance_class`          | string       | —          | DB instance class, e.g., db.t3.medium or db.r6g.large                       |
+| `multi_az`                | bool         | false      | Enable Multi-AZ for single RDS instance                                     |
+| `allocated_storage`       | number       | 20         | Storage size in GB for single RDS instance                                  |
+| `db_name`                 | string       | —          | Initial database name                                                       |
+| `username`                | string       | —          | Master username                                                             |
+| `password`                | string       | —          | Master password (sensitive)                                                 |
+| `port`                    | number       | 5432       | Database port                                                               |
+| `vpc_id`                  | string       | —          | VPC ID for security group                                                   |
+| `subnet_ids`              | list(string) | —          | List of subnet IDs for the DB subnet group (usually private)                |
+| `allowed_cidr_blocks`     | list(string) | []         | List of CIDR blocks allowed to access the DB port                           |
+| `parameter_group_family`  | string       | —          | Parameter group family, e.g., postgres14, aurora-postgresql14               |
+| `aurora_instance_count`   | number       | 1          | Total number of Aurora instances (1 writer + readers)                       |
+| `backup_retention_period` | number       | 7          | Backup retention period in days                                             |
+| `tags`                    | map(string)  | {}         | Common tags applied to all resources                                        |
+
+**How to change the DB type, engine and instance class**
+
+1. DB type:
+   The engine variable defines the DB type. Possible values:
+
+- "postgres" — RDS PostgreSQL
+
+- "mysql" — RDS MySQL
+
+- "aurora-postgresql" — Aurora PostgreSQL
+
+- "aurora-mysql" — Aurora MySQL
+
+2. DB version:
+   Use engine_version, e.g. "14.11" for PostgreSQL.
+
+3. Instance class:
+   The instance_class variable defines the instance capacity, e.g.:
+
+- db.t3.medium — for test environments
+
+- db.r6g.large — for production/larger workload
+
+4. Aurora or regular RDS:
+   Use the use_aurora flag:
+
+- true → Aurora Cluster is created
+
+- false → one RDS instance is created
+
+5. Number of Aurora instances:
+   The aurora_instance_count variable defines the total number of instances in the cluster (1 writer + the rest reader).
+
 ---
 
 ## Usage
