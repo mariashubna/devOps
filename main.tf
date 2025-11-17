@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-west-2"
+  region = "eu-west-3"
 }
 
 # -------------------------
@@ -7,8 +7,8 @@ provider "aws" {
 # -------------------------
 module "s3_backend" {
   source      = "./modules/s3-backend"
-  bucket_name = "terraform-state-bucket-001001-maria-sv-eu"
-  table_name  = "terraform-locks"
+  bucket_name = "terraform--project-maria-sv"
+  table_name  = "terraform-project"
 }
 
 # -------------------------
@@ -22,10 +22,10 @@ module "vpc" {
   public_subnets     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 
-  # Доступные зоны в регионе  "us-west-2"
-  availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  # Доступные зоны в регионе  "eu-west-3"
+  availability_zones = ["ueu-west-3a", "eu-west-3b", "eu-west-3c"]
 
-  vpc_name           = "lesson-8-9-vpc"
+  vpc_name           = "project-vpc"
 }
 
 # -------------------------
@@ -33,7 +33,7 @@ module "vpc" {
 # -------------------------
 module "ecr" {
   source       = "./modules/ecr"
-  ecr_name     = "lesson-8-9-ecr"
+  ecr_name     = "project-ecr"
   scan_on_push = true
 }
 
@@ -42,7 +42,7 @@ module "ecr" {
 # -------------------------
 module "eks" {
   source       = "./modules/eks"
-  cluster_name = "lesson-8-9-cluster"
+  cluster_name = "project-cluster"
   subnet_ids   = module.vpc.private_subnet_ids
 }
 

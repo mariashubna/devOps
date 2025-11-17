@@ -18,5 +18,5 @@ variable "github_repo_url" {
 variable "region" {
   description = "AWS region to deploy resources in"
   type        = string
-  default     = "eu-central-1"  # можно оставить регион по умолчанию
+  default     = "eu-west-3" 
 } 

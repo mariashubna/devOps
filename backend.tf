@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "terraform-state-bucket-001001-maria-sv-eu"
+    bucket         = "terraform--project-maria-sv"
     key            = "lesson-5/terraform.tfstate"
-    region         = "us-west-2"
-    dynamodb_table = "terraform-locks"
+    region         = "eu-west-3"
+    dynamodb_table = "terraform-project"
     encrypt        = true
   }
 }

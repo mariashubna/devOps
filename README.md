@@ -303,14 +303,14 @@ docker build -t lesson-5-ecr .
 **Authenticate Docker with ECR:**
 
 ```bash
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <account_id>.dkr.ecr.us-west-2.amazonaws.com
+aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin <account_id>.dkr.ecr.eu-west-3.amazonaws.com
 ```
 
 **Tag and push image:**
 
 ```bash
-docker tag lesson-5-ecr:latest <account_id>.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr:latest
-docker push <account_id>.dkr.ecr.us-west-2.amazonaws.com/lesson-5-ecr:latest
+docker tag lesson-5-ecr:latest <account_id>.dkr.ecr.eu-west-3.amazonaws.com/lesson-5-ecr:latest
+docker push <account_id>.dkr.ecr.eu-west-3.amazonaws.com/lesson-5-ecr:latest
 ```
 
 ## Jenkins Pipeline
