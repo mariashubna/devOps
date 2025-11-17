@@ -62,6 +62,12 @@ Progect/
 │ │ ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
 │ │ ├── variables.tf # Змінні для EKS
 │ │ └── outputs.tf # Виведення інформації про кластер
+│ ├── rds/ # Модуль для RDS
+│ │ ├── rds.tf # Створення RDS бази даних  
+│ │ ├── aurora.tf # Створення aurora кластера бази даних  
+│ │ ├── shared.tf # Спільні ресурси  
+│ │ ├── variables.tf # Змінні (ресурси, креденшели, values)
+│ │ └── outputs.tf  
 │ │
 │ ├── jenkins/ # Модуль для Helm-установки Jenkins
 │ │ ├── jenkins.tf # Helm release для Jenkins
@@ -136,6 +142,51 @@ Progect/
 - Configures Applications and Repositories for GitOps.
 - Automatically synchronizes Helm charts from Git to EKS.
 - **Outputs**: `namespace`, `argo_cd_server_service`, `admin_password`.
+
+### rds
+
+The module allows you to create:
+
+- Aurora Cluster (PostgreSQL or MySQL)
+- Regular RDS instance (PostgreSQL or MySQL)
+
+**Example of use**
+
+```hcl
+module "rds" {
+  source = "./modules/rds"
+
+  name       = "myapp-db"
+  use_aurora = true
+
+  engine                 = "aurora-postgresql"
+  engine_version         = "14.11"
+  instance_class         = "db.r6g.large"
+  parameter_group_family = "aurora-postgresql14"
+
+  aurora_instance_count = 2
+
+  db_name  = "myapp"
+  username = "postgres"
+  password = "SuperSecretPass123!"
+  port     = 5432
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  allowed_cidr_blocks = [
+    "10.0.0.0/16"
+  ]
+
+  tags = {
+    Environment = "dev"
+    Project     = "myapp"
+  }
+}
+
+```
+
+**RDS module variables**
 
 ---
 

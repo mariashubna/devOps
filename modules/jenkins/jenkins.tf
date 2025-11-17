@@ -51,7 +51,7 @@ resource "aws_iam_role" "jenkins_kaniko_role" {
         Action    = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "${replace(var.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:jenkins:jenkins-sa"
+            "${replace(var.oidc_provider_url, "https://", "")}:sub" = "system:serviceaccount:jenkins:jenkins-kaniko-sa"
           }
         }
       }

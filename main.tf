@@ -116,7 +116,7 @@ module "rds" {
 
   db_name  = "myapp"
   username = "postgres"
-  password = "admin123AWS23"
+  password = "admin123AWS23dsdfe32"
   port     = 5432
 
   vpc_id     = module.vpc.vpc_id
@@ -127,7 +127,7 @@ module "rds" {
   ]
 
   tags = {
-    Environment = "prod"
-    Project     = "myproject"
+    Environment = "dev"
+    Project     = "myapp"
   }
 }

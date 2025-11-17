@@ -4,7 +4,7 @@ resource "aws_rds_cluster" "this" {
 
   cluster_identifier = "${var.name}-cluster"
 
-  engine         = var.engine           # наприклад, "aurora-postgresql"
+  engine         = var.engine           
   engine_version = var.engine_version
 
   database_name   = var.db_name
@@ -34,7 +34,7 @@ resource "aws_rds_cluster" "this" {
   )
 }
 
-# Aurora Instances (writer + optional readers)
+# Writer instance
 resource "aws_rds_cluster_instance" "this" {
   count = var.use_aurora ? var.aurora_instance_count : 0
 

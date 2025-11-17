@@ -1,4 +1,4 @@
-# DB Subnet Group - спільний для Aurora та звичайної RDS
+# Subnet group (used by both)
 resource "aws_db_subnet_group" "this" {
   name       = "${var.name}-subnet-group"
   subnet_ids = var.subnet_ids
@@ -13,13 +13,13 @@ resource "aws_db_subnet_group" "this" {
   )
 }
 
-# Security Group для доступу до БД
+# Security group (used by both)
 resource "aws_security_group" "this" {
   name        = "${var.name}-sg"
   description = "Security group for ${var.name} database"
   vpc_id      = var.vpc_id
 
-  # Дозволяємо доступ на порт DB з заданих CIDR
+
   dynamic "ingress" {
     for_each = var.allowed_cidr_blocks
     content {
@@ -47,7 +47,7 @@ resource "aws_security_group" "this" {
   )
 }
 
-# Parameter Group для звичайної RDS instance
+# Parameter Group for RDS instance
 resource "aws_db_parameter_group" "this" {
   count = var.use_aurora ? 0 : 1
 
@@ -56,7 +56,7 @@ resource "aws_db_parameter_group" "this" {
 
   description = "Parameter group for ${var.name} RDS instance"
 
-  # Базові параметри (RDS/Postgres)
+
   parameter {
     name  = "max_connections"
     value = "200"
@@ -80,7 +80,7 @@ resource "aws_db_parameter_group" "this" {
   )
 }
 
-# Cluster Parameter Group для Aurora
+# Cluster Parameter Group for Aurora
 resource "aws_rds_cluster_parameter_group" "this" {
   count = var.use_aurora ? 1 : 0
 
