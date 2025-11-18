@@ -57,10 +57,11 @@ resource "aws_db_parameter_group" "this" {
   description = "Parameter group for ${var.name} RDS instance"
 
 
-  parameter {
-    name  = "max_connections"
-    value = "200"
-  }
+parameter {
+  name         = "max_connections"
+  value        = "200"
+  apply_method = "pending-reboot"
+}
 
   parameter {
     name  = "log_statement"

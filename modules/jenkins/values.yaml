@@ -1,25 +1,17 @@
 controller:
-  # --- Admin credentials ---
-  adminUser: admin
-  adminPassword: "${ADMIN_PASSWORD}"  # замінити через Helm set або Secret
   admin:
     username: admin
     password: admin123
 
-  # --- Service configuration ---
-  serviceType: LoadBalancer
-  servicePort: 80
   service:
+    type: LoadBalancer
     port: 80
-    targetPort: 8080
 
-  # --- Kubernetes integration ---
   kubernetes:
     enabled: true
-    namespace: "jenkins"
+    namespace: jenkins
     jenkinsUrl: "http://jenkins:8080"
 
-  # --- Pod templates (Kaniko + helpers) ---
   podTemplates:
     - name: kaniko
       label: kaniko
@@ -32,7 +24,6 @@ controller:
         - name: git
           image: alpine/git:latest
 
-  # --- Resources ---
   resources:
     limits:
       cpu: "500m"
@@ -41,13 +32,11 @@ controller:
       cpu: "250m"
       memory: "512Mi"
 
-  # --- Persistent volume ---
   persistentVolume:
     enabled: true
-    storageClass: "ebs-sc"
+    storageClass: ebs-sc
     size: 10Gi
 
-  # --- Plugins to install ---
   installPlugins:
     - kubernetes:latest
     - workflow-aggregator:latest
@@ -59,16 +48,13 @@ controller:
     - docker-workflow:latest
     - job-dsl:latest
 
-  # --- Use our pre-created ServiceAccount with IRSA ---
   serviceAccount:
     name: jenkins-kaniko-sa
     create: false
 
-  # --- Jenkins Configuration-as-Code ---
   JCasC:
     enabled: true
     configScripts:
-
       credentials: |
         credentials:
           system:
@@ -77,8 +63,8 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
-                      username: ${github_user}
-                      password: ${github_pat}
+                      username: "ваш_github_user"
+                      password: "ваш_github_pat"
                       description: GitHub PAT
 
       seed-job: |
@@ -89,7 +75,7 @@ controller:
                 scm {
                   git {
                     remote {
-                      url('${github_repo_url}')
+                      url('ваш_github_repo_url')
                       credentials('github-token')
                     }
                     branches('*/lesson-9')
@@ -98,14 +84,13 @@ controller:
                 steps {
                   dsl {
                     text('''
-
                       pipelineJob("goit-django-docker") {
                         definition {
                           cpsScm {
                             scm {
                               git {
                                 remote {
-                                  url("${github_repo_url}")
+                                  url("ваш_github_repo_url")
                                   credentials("github-token")
                                 }
                                 branches("*/lesson-9")
@@ -114,7 +99,6 @@ controller:
                           }
                         }
                       }
-
                     ''')
                   }
                 }

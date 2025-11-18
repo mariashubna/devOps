@@ -1,16 +1,18 @@
-{{- range .Values.repositories }}
+{{- range $index, $repo := .Values.repositories }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ .name }}
+  name: {{ $repo.name }}
   namespace: argocd
   labels:
     argocd.argoproj.io/secret-type: repository
 stringData:
-  url: {{ .url }}
-  username: {{ .username }}
-  password: {{ .password }}
+  url: {{ $repo.url }}
+  username: {{ $repo.username }}
+  password: {{ $repo.password }}
   insecure: "{{ $.Values.repoConfig.insecure }}"
   enableLfs: "{{ $.Values.repoConfig.enableLfs }}"
+{{- if not (eq $index (sub (len $.Values.repositories) 1)) }}
 ---
-{{ - end }}
+{{- end }}
+{{- end }}
