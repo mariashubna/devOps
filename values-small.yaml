@@ -1,0 +1,19 @@
+server:
+  prometheusSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ""  # пусто — использовать временный том
+          resources:
+            requests:
+              storage: 1Gi
+
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ""
+          resources:
+            requests:
+              storage: 512Mi

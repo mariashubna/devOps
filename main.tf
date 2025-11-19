@@ -136,7 +136,7 @@ module "rds" {
   use_aurora = false
 
   engine                 = "postgres"
-  engine_version         = "14.11"
+  engine_version         = "14.20"
   instance_class         = "db.t3.micro"
   parameter_group_family = "postgres14"
 
