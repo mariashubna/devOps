@@ -320,7 +320,7 @@ docker push <account_id>.dkr.ecr.eu-west-3.amazonaws.com/lesson-5-ecr:latest
 3. Updates values.yaml in Helm chart with new image tag.
 4. Pushes changes back to Git repository.
 
-Pipeline stages:
+## Pipeline stages:
 
 1. Prepare: checkout repo, set IMAGE_TAG
 2. Build & Push image (Kaniko)
@@ -361,6 +361,26 @@ kubectl port-forward svc/argo-cd-server -n argocd 8080:443
 
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode
+```
+
+## Check availability
+
+- Jenkins
+
+```bash
+kubectl port-forward svc/jenkins 8080:8080 -n jenkins
+```
+
+- Argo CD
+
+```bash
+kubectl port-forward svc/argo-cd-argocd-server 8081:443 -n argocd
+```
+
+- Grafana
+
+```bash
+kubectl port-forward svc/grafana 3000:80 -n monitoring
 ```
 
 ## Variables

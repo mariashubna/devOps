@@ -3,7 +3,7 @@ server:
     storage:
       volumeClaimTemplate:
         spec:
-          storageClassName: ""  # пусто — использовать временный том
+          storageClassName: ""  
           resources:
             requests:
               storage: 1Gi
